@@ -98,6 +98,7 @@ jobs:
           # Apple code signing (macOS only)
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           # Apple notarization (macOS only) - APPLE_API_KEY_PATH is set by the "Write Apple API key to file" step
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_KEY_PATH: ${{ env.APPLE_API_KEY_PATH }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         with:
