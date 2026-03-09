@@ -10,9 +10,9 @@
 
 	let { children } = $props();
 
-	onMount(async () => {
-		// Load initial data
-		await Promise.all([
+	onMount(() => {
+		// Load initial data concurrently without blocking render
+		Promise.all([
 			mcpLibrary.load(),
 			projectsStore.loadProjects(),
 			projectsStore.loadGlobalMcps(),
@@ -29,11 +29,12 @@
 		]);
 
 		// Load debug state and install interceptor if enabled
-		await debugStore.load();
-		if (debugStore.isEnabled) {
-			installDebugInterceptor();
-			console.log('[Debug] App started with debug mode enabled');
-		}
+		debugStore.load().then(() => {
+			if (debugStore.isEnabled) {
+				installDebugInterceptor();
+				console.log('[Debug] App started with debug mode enabled');
+			}
+		});
 
 		// Check for "What's New" after update (with delay to not block startup)
 		setTimeout(() => {

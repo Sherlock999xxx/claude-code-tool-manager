@@ -62,8 +62,8 @@
 				class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
 				title="Refresh sessions"
 			>
-				<RefreshCw class="w-3.5 h-3.5" />
-				Refresh
+				<RefreshCw class="w-3.5 h-3.5 {sessionStore.isRefreshingProjects ? 'animate-spin' : ''}" />
+				{sessionStore.isRefreshingProjects ? 'Refreshing…' : 'Refresh'}
 			</button>
 		</div>
 
