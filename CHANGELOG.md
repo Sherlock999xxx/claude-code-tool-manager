@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Infrastructure**: Added lucide-svelte mock, test factories, and invoke mock helpers
 
 ### Fixed
+- **Badge Dark Mode**: Fixed Badge component missing dark mode classes — "Claude" and "OpenCode" badges were unreadable on dark backgrounds; added `info` and `auto` variants
+- **Containers Route**: Added `/containers` route page to prevent 404 when clicking Containers in sidebar nav
 - **i18n Integration**: Fixed test compatibility with i18n-driven component text
 - **SettingsEditorSyncTab**: Fixed null safety when loading app settings
 
