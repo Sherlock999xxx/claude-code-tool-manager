@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.1] - 2026-03-20
+
+### Added
+- **Test Coverage**: Comprehensive test suite with 80 test files and 1,527 tests (16% → 61% line coverage)
+  - Store tests: all major stores including hooks, MCP, skills, commands, permissions, memory, sessions, and more
+  - Component tests: layout, shared components, settings tabs, MCP cards/forms, project detail, and more
+  - Type validation tests: all domain types with factory helpers
+  - Utility tests: markdown parser, MCP paste parser, debug logger
+- **Svelte 5 Migration**: Migrated shared components (ActionMenu, Badge, EmptyState, FavoriteButton, LoadingSpinner) to runes syntax
+- **Container Components**: Added stub components for container/Docker management feature
+- **Onboarding**: Added WelcomeHero component
+- **Test Infrastructure**: Added lucide-svelte mock, test factories, and invoke mock helpers
+
+### Fixed
+- **i18n Integration**: Fixed test compatibility with i18n-driven component text
+- **SettingsEditorSyncTab**: Fixed null safety when loading app settings
+
 ## [3.3.0] - 2026-02-27
 
 ### Changed
