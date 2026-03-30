@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ClaudeSettings } from '$lib/types';
-	import { AUTO_UPDATES_CHANNELS, TEAMMATE_MODES } from '$lib/types';
+	import { AUTO_UPDATES_CHANNELS } from '$lib/types';
 	import { Save } from 'lucide-svelte';
 
 	type Props = {
@@ -14,14 +14,12 @@
 		settings.cleanupPeriodDays !== undefined ? String(settings.cleanupPeriodDays) : ''
 	);
 	let autoUpdatesChannel = $state(settings.autoUpdatesChannel ?? '');
-	let teammateMode = $state(settings.teammateMode ?? '');
 	let plansDirectory = $state(settings.plansDirectory ?? '');
 
 	$effect(() => {
 		cleanupPeriodDays =
 			settings.cleanupPeriodDays !== undefined ? String(settings.cleanupPeriodDays) : '';
 		autoUpdatesChannel = settings.autoUpdatesChannel ?? '';
-		teammateMode = settings.teammateMode ?? '';
 		plansDirectory = settings.plansDirectory ?? '';
 	});
 
@@ -33,7 +31,6 @@
 			...settings,
 			cleanupPeriodDays: parsedDays !== undefined && !isNaN(parsedDays) ? parsedDays : undefined,
 			autoUpdatesChannel: autoUpdatesChannel || undefined,
-			teammateMode: teammateMode || undefined,
 			plansDirectory: plansDirectory.trim() || undefined
 		});
 	}
@@ -74,20 +71,6 @@
 				<select id="updates-channel" bind:value={autoUpdatesChannel} class="input w-full">
 					{#each AUTO_UPDATES_CHANNELS as channel}
 						<option value={channel.value}>{channel.label}</option>
-					{/each}
-				</select>
-			</div>
-
-			<div>
-				<label for="teammate-mode" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-					Teammate Mode
-				</label>
-				<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-					How Claude Code runs as a background teammate
-				</p>
-				<select id="teammate-mode" bind:value={teammateMode} class="input w-full">
-					{#each TEAMMATE_MODES as mode}
-						<option value={mode.value}>{mode.label}</option>
 					{/each}
 				</select>
 			</div>

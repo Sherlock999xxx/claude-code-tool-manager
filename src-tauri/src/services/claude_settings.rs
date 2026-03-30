@@ -64,6 +64,8 @@ pub struct ClaudeSettings {
     pub auto_updates_channel: Option<String>,
     pub teammate_mode: Option<String>,
     pub plans_directory: Option<String>,
+    // Agent Teams
+    pub agent_team: Option<Value>,
     // Auth & API Key Helpers
     pub api_key_helper: Option<String>,
     pub otel_headers_helper: Option<String>,
@@ -230,6 +232,9 @@ pub fn read_claude_settings_from_file(path: &Path, scope: &str) -> Result<Claude
         .and_then(|v| v.as_str())
         .map(|s| s.to_string());
 
+    // Agent Teams (pass-through as Value)
+    let agent_team = settings.get("agentTeam").cloned();
+
     // Auth & API Key Helpers
     let api_key_helper = settings
         .get("apiKeyHelper")
@@ -305,6 +310,7 @@ pub fn read_claude_settings_from_file(path: &Path, scope: &str) -> Result<Claude
         auto_updates_channel,
         teammate_mode,
         plans_directory,
+        agent_team,
         api_key_helper,
         otel_headers_helper,
         aws_auth_refresh,
@@ -365,6 +371,7 @@ pub fn read_all_claude_settings(project_path: Option<&Path>) -> Result<AllClaude
                 auto_updates_channel: None,
                 teammate_mode: None,
                 plans_directory: None,
+                agent_team: None,
                 api_key_helper: None,
                 otel_headers_helper: None,
                 aws_auth_refresh: None,
@@ -411,6 +418,7 @@ pub fn read_all_claude_settings(project_path: Option<&Path>) -> Result<AllClaude
                 auto_updates_channel: None,
                 teammate_mode: None,
                 plans_directory: None,
+                agent_team: None,
                 api_key_helper: None,
                 otel_headers_helper: None,
                 aws_auth_refresh: None,
@@ -654,6 +662,9 @@ pub fn write_claude_settings(
         "plansDirectory",
         &settings.plans_directory,
     );
+
+    // Agent Teams (pass-through Value)
+    set_or_remove_value(&mut file_settings, "agentTeam", &settings.agent_team);
 
     // Auth & API Key Helpers
     set_or_remove_string(&mut file_settings, "apiKeyHelper", &settings.api_key_helper);
@@ -931,6 +942,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1004,6 +1016,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1067,6 +1080,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1112,6 +1126,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1250,6 +1265,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1329,6 +1345,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1393,6 +1410,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1443,6 +1461,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1585,6 +1604,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1647,6 +1667,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1708,6 +1729,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1753,6 +1775,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1839,6 +1862,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1896,6 +1920,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -1979,6 +2004,7 @@ mod tests {
             auto_updates_channel: Some("latest".to_string()),
             teammate_mode: Some("auto".to_string()),
             plans_directory: Some("./my-plans".to_string()),
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -2072,6 +2098,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: Some("/usr/bin/get-api-key".to_string()),
             otel_headers_helper: Some("otel-helper.sh".to_string()),
             aws_auth_refresh: Some("aws-refresh.sh".to_string()),
@@ -2157,6 +2184,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -2331,6 +2359,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -2434,6 +2463,7 @@ mod tests {
             auto_updates_channel: Some("stable".to_string()),
             teammate_mode: Some("auto".to_string()),
             plans_directory: Some("/tmp/plans".to_string()),
+            agent_team: None,
             api_key_helper: Some("helper".to_string()),
             otel_headers_helper: Some("otel".to_string()),
             aws_auth_refresh: Some("aws".to_string()),
@@ -2479,6 +2509,7 @@ mod tests {
             auto_updates_channel: None,
             teammate_mode: None,
             plans_directory: None,
+            agent_team: None,
             api_key_helper: None,
             otel_headers_helper: None,
             aws_auth_refresh: None,
@@ -2515,5 +2546,107 @@ mod tests {
         assert!(json.get("enableAllProjectMcpServers").is_none());
         assert!(json.get("enabledMcpjsonServers").is_none());
         assert!(json.get("disabledMcpjsonServers").is_none());
+    }
+
+    #[test]
+    fn test_read_agent_team_settings() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("settings.json");
+        std::fs::write(
+            &path,
+            r#"{
+                "agentTeam": {
+                    "enabled": true,
+                    "members": [
+                        { "name": "researcher", "model": "sonnet", "description": "Handles research" },
+                        { "name": "frontend-dev", "model": "opus", "permissionMode": "auto" }
+                    ]
+                }
+            }"#,
+        )
+        .unwrap();
+
+        let settings = read_claude_settings_from_file(&path, "user").unwrap();
+        let team = settings.agent_team.unwrap();
+        assert_eq!(team.get("enabled").and_then(|v| v.as_bool()), Some(true));
+        let members = team.get("members").and_then(|v| v.as_array()).unwrap();
+        assert_eq!(members.len(), 2);
+        assert_eq!(
+            members[0].get("name").and_then(|v| v.as_str()),
+            Some("researcher")
+        );
+        assert_eq!(
+            members[1].get("permissionMode").and_then(|v| v.as_str()),
+            Some("auto")
+        );
+    }
+
+    #[test]
+    fn test_write_agent_team_settings() {
+        let dir = tempfile::tempdir().unwrap();
+        let project_path = dir.path();
+
+        let agent_team = Some(json!({
+            "enabled": true,
+            "members": [
+                { "name": "backend", "model": "haiku" }
+            ]
+        }));
+
+        let settings = ClaudeSettings {
+            scope: "local".to_string(),
+            model: None,
+            available_models: vec![],
+            output_style: None,
+            language: None,
+            always_thinking_enabled: None,
+            attribution_commit: None,
+            attribution_pr: None,
+            sandbox: None,
+            enabled_plugins: None,
+            extra_known_marketplaces: None,
+            env: None,
+            show_turn_duration: None,
+            spinner_tips_enabled: None,
+            terminal_progress_bar_enabled: None,
+            prefers_reduced_motion: None,
+            respect_gitignore: None,
+            file_suggestion_type: None,
+            file_suggestion_command: None,
+            cleanup_period_days: None,
+            auto_updates_channel: None,
+            teammate_mode: None,
+            plans_directory: None,
+            agent_team,
+            api_key_helper: None,
+            otel_headers_helper: None,
+            aws_auth_refresh: None,
+            aws_credential_export: None,
+            enable_all_project_mcp_servers: None,
+            enabled_mcpjson_servers: None,
+            disabled_mcpjson_servers: None,
+            allow_managed_hooks_only: None,
+            allow_managed_permission_rules_only: None,
+            disable_bypass_permissions_mode: None,
+            allowed_mcp_servers: None,
+            denied_mcp_servers: None,
+            strict_known_marketplaces: None,
+            company_announcements: None,
+            force_login_method: None,
+            force_login_org_uuid: None,
+        };
+
+        write_claude_settings(&PermissionScope::Local, Some(project_path), &settings).unwrap();
+
+        let path = project_path.join(".claude").join("settings.local.json");
+        let read_back = read_claude_settings_from_file(&path, "local").unwrap();
+        let team = read_back.agent_team.unwrap();
+        assert_eq!(team.get("enabled").and_then(|v| v.as_bool()), Some(true));
+        let members = team.get("members").and_then(|v| v.as_array()).unwrap();
+        assert_eq!(members.len(), 1);
+        assert_eq!(
+            members[0].get("name").and_then(|v| v.as_str()),
+            Some("backend")
+        );
     }
 }

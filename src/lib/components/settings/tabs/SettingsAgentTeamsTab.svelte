@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ScopedSettingsWrapper } from '$lib/components/settings';
-	import { SessionCleanupEditor } from '$lib/components/session-cleanup';
+	import { AgentTeamEditor } from '$lib/components/agent-teams';
 	import { claudeSettingsLibrary } from '$lib/stores';
 	import type { ClaudeSettingsScope } from '$lib/types';
 
@@ -14,18 +14,18 @@
 					: claudeSettingsLibrary.settings.local;
 		if (!s) return 0;
 		let count = 0;
-		if (s.cleanupPeriodDays !== undefined) count++;
-		if (s.autoUpdatesChannel) count++;
-		if (s.plansDirectory) count++;
+		if (s.teammateMode) count++;
+		if (s.agentTeam?.enabled) count++;
+		if (s.agentTeam?.members && s.agentTeam.members.length > 0) count++;
 		return count;
 	}
 </script>
 
 <ScopedSettingsWrapper {getSettingCount}>
 	{#snippet children({ settings, save })}
-		<SessionCleanupEditor
+		<AgentTeamEditor
 			{settings}
-			onsave={(s) => save(s, 'Session & cleanup settings saved', 'Failed to save session & cleanup settings')}
+			onsave={(s) => save(s, 'Agent team settings saved', 'Failed to save agent team settings')}
 		/>
 	{/snippet}
 </ScopedSettingsWrapper>

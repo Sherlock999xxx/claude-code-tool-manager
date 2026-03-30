@@ -12,5 +12,6 @@ export { default as SettingsSpinnerVerbsTab } from './SettingsSpinnerVerbsTab.sv
 export { default as SettingsAdminTab } from './SettingsAdminTab.svelte';
 export { default as SettingsEditorSyncTab } from './SettingsEditorSyncTab.svelte';
 export { default as SettingsAutoModeTab } from './SettingsAutoModeTab.svelte';
+export { default as SettingsAgentTeamsTab } from './SettingsAgentTeamsTab.svelte';
 export { default as SettingsCliTab } from './SettingsCliTab.svelte';
 export { default as SettingsCloudSyncTab } from './SettingsCloudSyncTab.svelte';

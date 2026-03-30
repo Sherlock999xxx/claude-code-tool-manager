@@ -63,12 +63,12 @@ describe('SessionCleanupEditor Component', () => {
 		expect(screen.queryByText('Disable Auto Mode')).not.toBeInTheDocument();
 	});
 
-	it('should render Teammate Mode dropdown in Agent Teams card', async () => {
+	it('should not render Teammate Mode (moved to Agent Teams tab)', async () => {
 		const { default: SessionCleanupEditor } = await import('$lib/components/session-cleanup/SessionCleanupEditor.svelte');
 		render(SessionCleanupEditor, {
 			props: { settings: mockSettings as any, onsave: vi.fn() }
 		});
-		expect(screen.getByLabelText('Teammate Mode')).toBeInTheDocument();
+		expect(screen.queryByLabelText('Teammate Mode')).not.toBeInTheDocument();
 	});
 
 	it('should render Plans Directory input', async () => {
@@ -80,14 +80,14 @@ describe('SessionCleanupEditor Component', () => {
 		expect(input.value).toBe('./plans');
 	});
 
-	it('should include teammateMode in save payload', async () => {
+	it('should include plansDirectory in save payload', async () => {
 		const { default: SessionCleanupEditor } = await import('$lib/components/session-cleanup/SessionCleanupEditor.svelte');
 		const onsave = vi.fn();
 		render(SessionCleanupEditor, {
 			props: { settings: mockSettings as any, onsave }
 		});
 		await fireEvent.click(screen.getByText('Save Session & Cleanup Settings'));
-		expect(onsave.mock.calls[0][0].teammateMode).toBe('full');
+		expect(onsave.mock.calls[0][0].plansDirectory).toBe('./plans');
 	});
 });
 

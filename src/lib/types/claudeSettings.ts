@@ -42,6 +42,18 @@ export interface MarketplaceDefinition {
 	installLocation?: string;
 }
 
+export interface AgentTeamMember {
+	name: string;
+	model?: string;
+	description?: string;
+	permissionMode?: string;
+}
+
+export interface AgentTeamConfig {
+	enabled?: boolean;
+	members?: AgentTeamMember[];
+}
+
 export interface KnownEnvVar {
 	key: string;
 	description: string;
@@ -77,6 +89,8 @@ export interface ClaudeSettings {
 	autoUpdatesChannel?: string;
 	teammateMode?: string;
 	plansDirectory?: string;
+	// Agent Teams
+	agentTeam?: AgentTeamConfig;
 	// Auth & API Key Helpers
 	apiKeyHelper?: string;
 	otelHeadersHelper?: string;
@@ -280,6 +294,14 @@ export const TEAMMATE_MODES = [
 	{ value: 'auto', label: 'Auto' },
 	{ value: 'in-process', label: 'In-process' },
 	{ value: 'tmux', label: 'Tmux' }
+] as const;
+
+export const AGENT_TEAM_PERMISSION_MODES = [
+	{ value: '', label: 'Inherit from lead' },
+	{ value: 'default', label: 'Default' },
+	{ value: 'plan', label: 'Plan' },
+	{ value: 'auto', label: 'Auto-accept' },
+	{ value: 'bypassPermissions', label: 'Bypass Permissions' }
 ] as const;
 
 export const MARKETPLACE_SOURCE_TYPES: { value: MarketplaceSourceType; label: string }[] = [
