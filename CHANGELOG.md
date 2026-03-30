@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-03-30
+
+### Added
+- **Bulk Select & Actions**: Multi-select checkboxes, select-all, and sticky action bar for project tool assignments (MCPs, Skills, Agents, Commands, Hooks) with Enable/Disable/Remove bulk operations
+- **Cloud Sync**: Gist-based configuration sync via GitHub CLI with push/pull support, per-machine metadata, and settings tab
+- **Rules Engine**: Permission/constraint management with UI for creating, editing, and browsing rules
+- **Agent Memory Management**: Persistent agent memory with UI panel for viewing and editing memory entries
+- **Auto Mode Editor**: Settings tab for configuring Auto Mode behavior
+- **Model Overrides Editor**: UI for per-project model override configuration
+- **CLI Startup Flags**: New card component for configuring CLI startup flags
+- **Sandbox Filesystem Editor**: Expanded sandbox configuration with dedicated filesystem rule editor
+- **Settings Tabs**: New settings tabs for Cloud Sync, Auto Mode, and CLI configuration
+
+### Fixed
+- **Card Dropdown Clipping**: Removed CSS `contain: layout` that was cutting off kebab menus on library cards
+- **Async Tests**: Tests now use `#[tokio::test]` with `.await` instead of silently dropping futures
+- **Blocking I/O**: `get_gh_cli_token` wrapped in `spawn_blocking` to avoid blocking the async runtime
+- **Secret Scrubbing**: MCP `env` and `headers` excluded from cloud sync payload to prevent leaking API keys
+- **File Backup**: Cloud sync pull now creates `.bak` backups before overwriting CLAUDE.md files, with confirmation dialog
+- **Accessibility**: Added focus-visible ring indicators to all bulk-select and checkbox buttons
+- **Glob Matching**: Single-star glob patterns no longer cross directory boundaries
+- **ContainerLogs**: Fixed null reference in `requestAnimationFrame` callback after component unmount
+
 ## [3.6.0] - 2026-03-23
 
 ### Added
