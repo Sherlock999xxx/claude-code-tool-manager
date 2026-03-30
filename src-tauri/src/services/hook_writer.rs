@@ -63,7 +63,43 @@ fn generate_hooks_config(hooks: &[Hook]) -> Value {
                         hook_action.insert("prompt".to_string(), json!(prompt));
                     }
                 }
+                "http" => {
+                    if let Some(ref url) = hook.url {
+                        hook_action.insert("url".to_string(), json!(url));
+                    }
+                    if let Some(ref headers) = hook.headers {
+                        hook_action.insert("headers".to_string(), headers.clone());
+                    }
+                    if let Some(ref env_vars) = hook.allowed_env_vars {
+                        hook_action.insert("allowedEnvVars".to_string(), json!(env_vars));
+                    }
+                    if let Some(timeout) = hook.timeout {
+                        hook_action.insert("timeout".to_string(), json!(timeout));
+                    }
+                }
+                "agent" => {
+                    // agent type has no additional type-specific fields
+                }
                 _ => {}
+            }
+
+            // Universal fields (all hook types)
+            if let Some(ref if_cond) = hook.if_condition {
+                hook_action.insert("if".to_string(), json!(if_cond));
+            }
+            if let Some(ref status) = hook.status_message {
+                hook_action.insert("statusMessage".to_string(), json!(status));
+            }
+            if hook.once {
+                hook_action.insert("once".to_string(), json!(true));
+            }
+            if hook.async_mode {
+                hook_action.insert("async".to_string(), json!(true));
+            }
+            if let Some(ref shell) = hook.shell {
+                if shell != "bash" {
+                    hook_action.insert("shell".to_string(), json!(shell));
+                }
             }
 
             hook_entry.insert("hooks".to_string(), json!([Value::Object(hook_action)]));
@@ -165,6 +201,14 @@ mod tests {
                 tags: None,
                 source: "manual".to_string(),
                 is_template: false,
+                url: None,
+                headers: None,
+                allowed_env_vars: None,
+                if_condition: None,
+                status_message: None,
+                once: false,
+                async_mode: false,
+                shell: None,
                 created_at: "2024-01-01".to_string(),
                 updated_at: "2024-01-01".to_string(),
             },
@@ -181,6 +225,14 @@ mod tests {
                 tags: None,
                 source: "manual".to_string(),
                 is_template: false,
+                url: None,
+                headers: None,
+                allowed_env_vars: None,
+                if_condition: None,
+                status_message: None,
+                once: false,
+                async_mode: false,
+                shell: None,
                 created_at: "2024-01-01".to_string(),
                 updated_at: "2024-01-01".to_string(),
             },
@@ -211,6 +263,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -245,6 +305,14 @@ mod tests {
                 tags: None,
                 source: "manual".to_string(),
                 is_template: false,
+                url: None,
+                headers: None,
+                allowed_env_vars: None,
+                if_condition: None,
+                status_message: None,
+                once: false,
+                async_mode: false,
+                shell: None,
                 created_at: "2024-01-01".to_string(),
                 updated_at: "2024-01-01".to_string(),
             },
@@ -261,6 +329,14 @@ mod tests {
                 tags: None,
                 source: "manual".to_string(),
                 is_template: false,
+                url: None,
+                headers: None,
+                allowed_env_vars: None,
+                if_condition: None,
+                status_message: None,
+                once: false,
+                async_mode: false,
+                shell: None,
                 created_at: "2024-01-01".to_string(),
                 updated_at: "2024-01-01".to_string(),
             },
@@ -293,6 +369,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -318,6 +402,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -346,6 +438,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -390,6 +490,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -442,6 +550,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];
@@ -467,6 +583,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         }];

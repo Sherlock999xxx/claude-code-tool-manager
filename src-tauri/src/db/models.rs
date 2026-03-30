@@ -175,6 +175,13 @@ pub struct Skill {
     pub source: String,
     pub source_path: Option<String>,
     pub is_favorite: bool,
+    pub context: Option<String>,
+    pub agent: Option<String>,
+    pub hooks: Option<String>,
+    pub paths: Option<Vec<String>>,
+    pub shell: Option<String>,
+    pub once: Option<bool>,
+    pub effort: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -189,6 +196,13 @@ pub struct CreateSkillRequest {
     pub model: Option<String>,
     pub disable_model_invocation: Option<bool>,
     pub tags: Option<Vec<String>>,
+    pub context: Option<String>,
+    pub agent: Option<String>,
+    pub hooks: Option<String>,
+    pub paths: Option<Vec<String>>,
+    pub shell: Option<String>,
+    pub once: Option<bool>,
+    pub effort: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -247,6 +261,15 @@ pub struct SubAgent {
     pub source: String,
     pub source_path: Option<String>,
     pub is_favorite: bool,
+    pub disallowed_tools: Option<Vec<String>>,
+    pub max_turns: Option<i32>,
+    pub memory: Option<String>,
+    pub background: Option<bool>,
+    pub effort: Option<String>,
+    pub isolation: Option<String>,
+    pub hooks: Option<String>,
+    pub mcp_servers: Option<String>,
+    pub initial_prompt: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -262,6 +285,15 @@ pub struct CreateSubAgentRequest {
     pub permission_mode: Option<String>,
     pub skills: Option<Vec<String>>,
     pub tags: Option<Vec<String>>,
+    pub disallowed_tools: Option<Vec<String>>,
+    pub max_turns: Option<i32>,
+    pub memory: Option<String>,
+    pub background: Option<bool>,
+    pub effort: Option<String>,
+    pub isolation: Option<String>,
+    pub hooks: Option<String>,
+    pub mcp_servers: Option<String>,
+    pub initial_prompt: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -368,13 +400,21 @@ pub struct Hook {
     pub description: Option<String>,
     pub event_type: String, // PreToolUse, PostToolUse, Notification, etc.
     pub matcher: Option<String>,
-    pub hook_type: String, // "command" or "prompt"
+    pub hook_type: String, // "command", "prompt", "http", or "agent"
     pub command: Option<String>,
     pub prompt: Option<String>,
     pub timeout: Option<i32>,
     pub tags: Option<Vec<String>>,
     pub source: String,
     pub is_template: bool,
+    pub url: Option<String>,
+    pub headers: Option<serde_json::Value>,
+    pub allowed_env_vars: Option<Vec<String>>,
+    pub if_condition: Option<String>,
+    pub status_message: Option<String>,
+    pub once: bool,
+    pub async_mode: bool,
+    pub shell: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -391,6 +431,14 @@ pub struct CreateHookRequest {
     pub prompt: Option<String>,
     pub timeout: Option<i32>,
     pub tags: Option<Vec<String>>,
+    pub url: Option<String>,
+    pub headers: Option<serde_json::Value>,
+    pub allowed_env_vars: Option<Vec<String>>,
+    pub if_condition: Option<String>,
+    pub status_message: Option<String>,
+    pub once: Option<bool>,
+    pub async_mode: Option<bool>,
+    pub shell: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -408,6 +456,53 @@ pub struct GlobalHook {
     pub id: i64,
     pub hook_id: i64,
     pub hook: Hook,
+    pub is_enabled: bool,
+}
+
+// Rules (markdown files with frontmatter for conditional loading)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Rule {
+    pub id: i64,
+    pub name: String,
+    pub description: Option<String>,
+    pub content: String,
+    pub paths: Option<Vec<String>>,
+    pub tags: Option<Vec<String>>,
+    pub source: String,
+    pub source_path: Option<String>,
+    pub is_symlink: bool,
+    pub symlink_target: Option<String>,
+    pub is_favorite: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateRuleRequest {
+    pub name: String,
+    pub description: Option<String>,
+    pub content: String,
+    pub paths: Option<Vec<String>>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectRule {
+    pub id: i64,
+    pub rule_id: i64,
+    pub rule: Rule,
+    pub is_enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GlobalRule {
+    pub id: i64,
+    pub rule_id: i64,
+    pub rule: Rule,
     pub is_enabled: bool,
 }
 
@@ -1077,6 +1172,13 @@ mod tests {
             source: "manual".to_string(),
             source_path: Some("/path/to/skill".to_string()),
             is_favorite: false,
+            context: None,
+            agent: None,
+            hooks: None,
+            paths: None,
+            shell: None,
+            once: None,
+            effort: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         };
@@ -1102,6 +1204,13 @@ mod tests {
             model: None,
             disable_model_invocation: Some(true),
             tags: None,
+            context: None,
+            agent: None,
+            hooks: None,
+            paths: None,
+            shell: None,
+            once: None,
+            effort: None,
         };
 
         let json = serde_json::to_string(&req).unwrap();
@@ -1127,6 +1236,15 @@ mod tests {
             source: "manual".to_string(),
             source_path: None,
             is_favorite: false,
+            disallowed_tools: None,
+            max_turns: None,
+            memory: None,
+            background: None,
+            effort: None,
+            isolation: None,
+            hooks: None,
+            mcp_servers: None,
+            initial_prompt: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         };
@@ -1171,6 +1289,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024-01-01".to_string(),
             updated_at: "2024-01-01".to_string(),
         };
@@ -1195,6 +1321,14 @@ mod tests {
             prompt: None,
             timeout: None,
             tags: None,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: None,
+            async_mode: None,
+            shell: None,
         };
 
         let json = serde_json::to_string(&req).unwrap();
@@ -1214,6 +1348,14 @@ mod tests {
             prompt: Some("Please verify before proceeding".to_string()),
             timeout: None,
             tags: Some(vec!["safety".to_string()]),
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: None,
+            async_mode: None,
+            shell: None,
         };
 
         let json = serde_json::to_string(&req).unwrap();
@@ -2219,6 +2361,13 @@ mod tests {
             source: "manual".to_string(),
             source_path: None,
             is_favorite: false,
+            context: None,
+            agent: None,
+            hooks: None,
+            paths: None,
+            shell: None,
+            once: None,
+            effort: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2249,6 +2398,13 @@ mod tests {
             source: "manual".to_string(),
             source_path: None,
             is_favorite: false,
+            context: None,
+            agent: None,
+            hooks: None,
+            paths: None,
+            shell: None,
+            once: None,
+            effort: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2279,6 +2435,15 @@ mod tests {
             source: "manual".to_string(),
             source_path: None,
             is_favorite: false,
+            disallowed_tools: None,
+            max_turns: None,
+            memory: None,
+            background: None,
+            effort: None,
+            isolation: None,
+            hooks: None,
+            mcp_servers: None,
+            initial_prompt: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2309,6 +2474,15 @@ mod tests {
             source: "manual".to_string(),
             source_path: None,
             is_favorite: false,
+            disallowed_tools: None,
+            max_turns: None,
+            memory: None,
+            background: None,
+            effort: None,
+            isolation: None,
+            hooks: None,
+            mcp_servers: None,
+            initial_prompt: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2339,6 +2513,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2369,6 +2551,14 @@ mod tests {
             tags: None,
             source: "manual".to_string(),
             is_template: false,
+            url: None,
+            headers: None,
+            allowed_env_vars: None,
+            if_condition: None,
+            status_message: None,
+            once: false,
+            async_mode: false,
+            shell: None,
             created_at: "2024".to_string(),
             updated_at: "2024".to_string(),
         };
@@ -2858,6 +3048,13 @@ mod tests {
             model: Some("opus".to_string()),
             disable_model_invocation: Some(false),
             tags: Some(vec!["code".to_string(), "review".to_string()]),
+            context: None,
+            agent: None,
+            hooks: None,
+            paths: None,
+            shell: None,
+            once: None,
+            effort: None,
         };
 
         let json = serde_json::to_string(&req).unwrap();
@@ -2878,6 +3075,15 @@ mod tests {
             permission_mode: Some("bypassPermissions".to_string()),
             skills: Some(vec!["lint".to_string(), "test".to_string()]),
             tags: Some(vec!["agent".to_string()]),
+            disallowed_tools: None,
+            max_turns: None,
+            memory: None,
+            background: None,
+            effort: None,
+            isolation: None,
+            hooks: None,
+            mcp_servers: None,
+            initial_prompt: None,
         };
 
         let json = serde_json::to_string(&req).unwrap();
