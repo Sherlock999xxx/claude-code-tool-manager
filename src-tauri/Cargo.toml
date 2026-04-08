@@ -63,6 +63,7 @@ base64 = "0.22"
 
 # Regex for parsing
 regex = "1"
+tar = "0.4"
 
 # TOML parsing for Codex CLI config
 toml = "1.0"
