@@ -4,7 +4,7 @@ use bollard::container::{
     StopContainerOptions,
 };
 use bollard::exec::{CreateExecOptions, ResizeExecOptions, StartExecOptions, StartExecResults};
-use bollard::image::CreateImageOptions;
+use bollard::image::{BuildImageOptions, CreateImageOptions};
 use bollard::Docker;
 use bytes::Bytes;
 use futures::StreamExt;
@@ -119,6 +119,62 @@ impl DockerClientManager {
 
         info!("[Docker] Successfully pulled image: {}", image);
         Ok(())
+    }
+
+    /// Build a Docker image from a Dockerfile string.
+    /// Returns the tag of the built image.
+    pub async fn build_from_dockerfile(
+        &self,
+        dockerfile_content: &str,
+        tag: &str,
+        host_id: i64,
+    ) -> Result<String, String> {
+        let client = self.get_client(host_id).await?;
+        info!("[Docker] Building image '{}' from Dockerfile", tag);
+
+        // Create a tar archive containing the Dockerfile
+        let mut header = tar::Header::new_gnu();
+        let dockerfile_bytes = dockerfile_content.as_bytes();
+        header.set_size(dockerfile_bytes.len() as u64);
+        header
+            .set_path("Dockerfile")
+            .map_err(|e| format!("Failed to set tar path: {}", e))?;
+        header.set_mode(0o644);
+        header.set_cksum();
+
+        let mut tar_buf = Vec::new();
+        {
+            let mut tar_builder = tar::Builder::new(&mut tar_buf);
+            tar_builder
+                .append(&header, dockerfile_bytes)
+                .map_err(|e| format!("Failed to append Dockerfile to tar: {}", e))?;
+            tar_builder
+                .finish()
+                .map_err(|e| format!("Failed to finish tar: {}", e))?;
+        }
+
+        let options = BuildImageOptions {
+            dockerfile: "Dockerfile".to_string(),
+            t: tag.to_string(),
+            pull: true,
+            rm: true,
+            ..Default::default()
+        };
+
+        let mut stream = client.build_image(options, None, Some(Bytes::from(tar_buf)));
+        while let Some(result) = stream.next().await {
+            match result {
+                Ok(info) => {
+                    if let Some(ref error) = info.error {
+                        return Err(format!("Docker build error: {}", error));
+                    }
+                }
+                Err(e) => return Err(format!("Failed to build image: {}", e)),
+            }
+        }
+
+        info!("[Docker] Successfully built image: {}", tag);
+        Ok(tag.to_string())
     }
 
     /// Create a Docker container from a Container model

@@ -17,8 +17,8 @@
 
 <div class="flex items-center gap-1">
 	{#if loading}
-		<div class="p-1.5" title="Operation in progress...">
-			<Loader2 class="w-4 h-4 animate-spin text-blue-500" aria-label="Loading" />
+		<div class="p-1.5 animate-spin" title="Operation in progress...">
+			<Loader2 class="w-4 h-4 text-blue-500" aria-label="Loading" />
 		</div>
 	{:else if status === 'not_created'}
 		{#if onBuild}

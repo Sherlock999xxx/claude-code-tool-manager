@@ -272,26 +272,69 @@ pub async fn start_container_cmd(
         did.clone()
     } else {
         is_first_start = true;
-        // Pull the image if specified
-        if let Some(ref image) = container.image {
-            info!("[Container] Pulling image before first start: {}", image);
-            docker_mgr
-                .pull_image(image, container.docker_host_id)
-                .await?;
-        }
 
-        let created_id = docker_mgr
-            .create_docker_container(&container, Some(&claude_settings))
-            .await?;
-        // Save the docker_container_id back to DB
-        let db = db.lock().map_err(|e| e.to_string())?;
-        db.conn()
-            .execute(
-                "UPDATE containers SET docker_container_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                params![created_id, id],
-            )
-            .map_err(|e| e.to_string())?;
-        created_id
+        // If template has a Dockerfile, build a custom image; otherwise just pull
+        if let Some(ref dockerfile) = container.dockerfile {
+            let tag = format!(
+                "cctm-{}:latest",
+                container.name.to_lowercase().replace(' ', "-")
+            );
+            info!(
+                "[Container] Building custom image '{}' from Dockerfile",
+                tag
+            );
+            docker_mgr
+                .build_from_dockerfile(dockerfile, &tag, container.docker_host_id)
+                .await?;
+            // Update the container's image to the built tag and re-read
+            {
+                let db = db.lock().map_err(|e| e.to_string())?;
+                db.conn()
+                    .execute(
+                        "UPDATE containers SET image = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                        params![tag, id],
+                    )
+                    .map_err(|e| e.to_string())?;
+            }
+            let container = {
+                let db = db.lock().map_err(|e| e.to_string())?;
+                get_container_impl(&db, id)?
+            };
+            let created_id = docker_mgr
+                .create_docker_container(&container, Some(&claude_settings))
+                .await?;
+            {
+                let db = db.lock().map_err(|e| e.to_string())?;
+                db.conn()
+                    .execute(
+                        "UPDATE containers SET docker_container_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                        params![created_id, id],
+                    )
+                    .map_err(|e| e.to_string())?;
+            }
+            created_id
+        } else {
+            // No Dockerfile — just pull the base image
+            if let Some(ref image) = container.image {
+                info!("[Container] Pulling image before first start: {}", image);
+                docker_mgr
+                    .pull_image(image, container.docker_host_id)
+                    .await?;
+            }
+
+            let created_id = docker_mgr
+                .create_docker_container(&container, Some(&claude_settings))
+                .await?;
+            // Save the docker_container_id back to DB
+            let db = db.lock().map_err(|e| e.to_string())?;
+            db.conn()
+                .execute(
+                    "UPDATE containers SET docker_container_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                    params![created_id, id],
+                )
+                .map_err(|e| e.to_string())?;
+            created_id
+        }
     };
 
     docker_mgr
