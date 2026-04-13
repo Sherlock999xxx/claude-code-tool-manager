@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.1] - 2026-04-12
+
+### Fixed
+- **Sync Config Data Loss**: Sync Config no longer destroys existing `.mcp.json` files — now reads and merges instead of overwriting, with backup creation and corrupt-file protection (#191)
+
 ## [3.7.1] - 2026-03-30
 
 ### Fixed
