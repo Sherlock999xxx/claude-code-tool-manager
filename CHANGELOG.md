@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.2] - 2026-04-12
+
+### Fixed
+- **File Safety**: All 12 writer modules now create `.bak` backups before modifying user files — shared `utils::backup::backup_file()` utility protects settings, keybindings, CLAUDE.md, skills, agents, rules, commands, and memory files from data loss on first run and subsequent syncs (#193)
+
 ## [3.8.1] - 2026-04-12
 
 ### Fixed
