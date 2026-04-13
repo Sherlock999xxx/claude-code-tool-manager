@@ -109,10 +109,10 @@ pub async fn connect_cloud_sync(
 #[tauri::command]
 pub fn get_sync_auth_status(db: State<'_, Arc<Mutex<Database>>>) -> Result<SyncAuthStatus, String> {
     let db = db.lock().map_err(|e| e.to_string())?;
-    let token = db.get_setting("github_token");
-    let username = db.get_setting("sync_username");
-    let gist_id = db.get_setting("sync_gist_id");
-    let gist_url = db.get_setting("sync_gist_url");
+    let token = db.get_setting("github_token").filter(|s| !s.is_empty());
+    let username = db.get_setting("sync_username").filter(|s| !s.is_empty());
+    let gist_id = db.get_setting("sync_gist_id").filter(|s| !s.is_empty());
+    let gist_url = db.get_setting("sync_gist_url").filter(|s| !s.is_empty());
     let has_gh = has_gh_cli();
 
     Ok(SyncAuthStatus {
