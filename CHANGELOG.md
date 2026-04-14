@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.3] - 2026-04-14
+
+### Fixed
+- **macOS GUI Launch**: Resolve `gh` CLI path for macOS apps launched from Finder/Spotlight — checks Homebrew install locations before falling back to PATH (#196)
+- **Gist Pagination**: Search all gists (not just first 100) when finding sync gist — users with 100+ gists no longer get orphaned gists on every connect (#197)
+- **Disconnect Auth Status**: Filter empty strings in sync auth status so disconnecting properly shows as disconnected (#198)
+- **Backup File Extensions**: Append `.bak` instead of replacing file extension — fixes `.json` files getting wrong backup names like `settings.md.bak` (#199)
+
 ## [3.8.2] - 2026-04-12
 
 ### Fixed
