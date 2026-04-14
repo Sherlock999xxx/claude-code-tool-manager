@@ -221,22 +221,33 @@ impl GistSyncService {
 
     /// Find existing sync gist or create a new one
     pub async fn find_or_create_gist(&self, token: &str) -> Result<(String, String)> {
-        // Search user's gists for our sync gist
-        let url = format!("{}/gists?per_page=100", self.api_base);
-        let response = self
-            .client
-            .get(&url)
-            .headers(self.auth_headers(token))
-            .send()
-            .await?;
+        // Search user's gists for our sync gist (paginated — GitHub caps at 100 per page)
+        let mut page = 1u32;
+        loop {
+            let url = format!("{}/gists?per_page=100&page={}", self.api_base, page);
+            let response = self
+                .client
+                .get(&url)
+                .headers(self.auth_headers(token))
+                .send()
+                .await?;
 
-        if response.status().is_success() {
+            if !response.status().is_success() {
+                break;
+            }
+
             let gists: Vec<GistResponse> = response.json().await?;
+            if gists.is_empty() {
+                break;
+            }
+
             for gist in &gists {
                 if gist.description.as_deref() == Some(GIST_DESCRIPTION) {
                     return Ok((gist.id.clone(), gist.html_url.clone()));
                 }
             }
+
+            page += 1;
         }
 
         // Not found — create a new private gist
