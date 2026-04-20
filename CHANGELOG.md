@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.5] - 2026-04-19
+
+### Changed
+- **Dependency Updates**: Rolled up patch and minor bumps from Dependabot (#181–#186, #188, #189). Frontend: `@tauri-apps/cli` 2.10.0 → 2.10.1, `@types/node` 25.5.0 → 25.6.0, `svelte-check` 4.4.4 → 4.4.6. Rust: `tokio` 1.50.0 → 1.52.1, `rmcp` 1.2.0 → 1.5.0, `once_cell` 1.21.3 → 1.21.4 (soundness fix), `pulldown-cmark` 0.13.1 → 0.13.3 (tar 0.4.45 security bump), `env_logger` 0.11.9 → 0.11.10. All 1996 Rust tests and 1564 frontend tests pass. TypeScript 6 (#187) and lucide-svelte 1.0 (#180) deferred — require manual migration (removed `Github` brand icon)
+
 ## [3.8.4] - 2026-04-19
 
 ### Fixed
