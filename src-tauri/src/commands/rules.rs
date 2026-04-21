@@ -139,13 +139,46 @@ pub fn update_rule(
     stmt.query_row([id], row_to_rule).map_err(|e| e.to_string())
 }
 
+/// Inner helper for [`delete_rule`]: drops the DB row and removes the
+/// backing `.md` file under `{home}/.claude/rules/<name>.md`.
+/// Factored out so tests can pass a temp dir in place of `~`.
+///
+/// Error handling: a missing row is not an error (the rule is effectively
+/// gone — DB delete no-ops, disk delete is skipped). Any other lookup error
+/// (lock contention, corruption, etc.) is surfaced *before* the DB delete,
+/// so we never orphan the disk file by nulling out the DB row without
+/// knowing the filename.
+fn delete_rule_inner(conn: &rusqlite::Connection, id: i64, home: &Path) -> Result<(), String> {
+    let query = format!("SELECT {} FROM rules WHERE id = ?", RULE_SELECT_FIELDS);
+    let rule: Option<Rule> = match conn
+        .prepare(&query)
+        .and_then(|mut s| s.query_row([id], row_to_rule))
+    {
+        Ok(r) => Some(r),
+        Err(rusqlite::Error::QueryReturnedNoRows) => None,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    conn.execute("DELETE FROM rules WHERE id = ?", [id])
+        .map_err(|e| e.to_string())?;
+
+    if let Some(rule) = rule {
+        // `delete_rule_file` already treats a missing file as success; any
+        // error returned here is a real IO/permission failure worth surfacing.
+        rule_writer::delete_rule_file(home, &rule).map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
+
 #[tauri::command]
 pub fn delete_rule(db: State<'_, Arc<Mutex<Database>>>, id: i64) -> Result<(), String> {
     let db = db.lock().map_err(|e| e.to_string())?;
-    db.conn()
-        .execute("DELETE FROM rules WHERE id = ?", [id])
-        .map_err(|e| e.to_string())?;
-    Ok(())
+    let base_dirs =
+        directories::BaseDirs::new().ok_or_else(|| "Could not find home directory".to_string())?;
+    // Without the disk delete, the next startup scan would resurrect the rule
+    // as `source='auto-detected'`.
+    delete_rule_inner(db.conn(), id, base_dirs.home_dir())
 }
 
 #[tauri::command]
@@ -547,5 +580,85 @@ mod tests {
     fn test_glob_match_simple_star() {
         assert!(glob_match("src/*.ts", "src/index.ts"));
         assert!(!glob_match("src/*.ts", "src/deep/index.ts"));
+    }
+
+    // =========================================================================
+    // delete_rule_inner tests
+    // =========================================================================
+
+    fn setup_test_db() -> Database {
+        Database::in_memory().unwrap()
+    }
+
+    #[test]
+    fn test_delete_rule_removes_disk_file() {
+        let db = setup_test_db();
+        let temp_dir = tempfile::TempDir::new().unwrap();
+
+        db.conn()
+            .execute(
+                "INSERT INTO rules (name, content) VALUES (?, ?)",
+                params!["my-rule", "body"],
+            )
+            .unwrap();
+        let id = db.conn().last_insert_rowid();
+
+        let rules_dir = temp_dir.path().join(".claude").join("rules");
+        std::fs::create_dir_all(&rules_dir).unwrap();
+        let file_path = rules_dir.join("my-rule.md");
+        std::fs::write(&file_path, "body").unwrap();
+        assert!(file_path.exists());
+
+        delete_rule_inner(db.conn(), id, temp_dir.path()).unwrap();
+
+        assert!(!file_path.exists(), "disk file should be removed");
+        let row_count: i64 = db
+            .conn()
+            .query_row("SELECT COUNT(*) FROM rules WHERE id = ?", [id], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(row_count, 0, "db row should be removed");
+    }
+
+    #[test]
+    fn test_delete_rule_missing_id_is_not_an_error() {
+        // A delete targeting an ID that isn't in the DB must return Ok —
+        // the "rule is gone" end state is already satisfied. This exercises
+        // the `QueryReturnedNoRows` arm of delete_rule_inner.
+        let db = setup_test_db();
+        let temp_dir = tempfile::TempDir::new().unwrap();
+
+        let result = delete_rule_inner(db.conn(), 99_999, temp_dir.path());
+        assert!(result.is_ok(), "missing row should not error");
+    }
+
+    #[test]
+    fn test_delete_rule_succeeds_when_file_absent() {
+        let db = setup_test_db();
+        let temp_dir = tempfile::TempDir::new().unwrap();
+
+        db.conn()
+            .execute(
+                "INSERT INTO rules (name, content) VALUES (?, ?)",
+                params!["ghost", "body"],
+            )
+            .unwrap();
+        let id = db.conn().last_insert_rowid();
+
+        // No disk file created — just the DB row.
+        let result = delete_rule_inner(db.conn(), id, temp_dir.path());
+        assert!(
+            result.is_ok(),
+            "delete must succeed when disk file is absent"
+        );
+
+        let row_count: i64 = db
+            .conn()
+            .query_row("SELECT COUNT(*) FROM rules WHERE id = ?", [id], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(row_count, 0);
     }
 }
