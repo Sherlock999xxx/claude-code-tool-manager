@@ -112,11 +112,23 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build Tauri app
+      # Disable updater artifacts on PR builds: fork/Dependabot PRs can't read secrets, and tauri refuses to build when pubkey is set in config but no private key is available.
+      - name: Build Tauri app (PR — updater disabled)
+        if: github.event_name == 'pull_request'
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Only use signing keys on push to main (PRs don't need signed artifacts)
+        with:
+          args: >-
+            --target ${{ matrix.target }}
+            --config {"bundle":{"createUpdaterArtifacts":false}}
+            ${{ matrix.target == 'x86_64-apple-darwin' && '--bundles app' || '' }}
+
+      - name: Build Tauri app (push to main — signed)
+        if: github.event_name == 'push'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
