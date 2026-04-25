@@ -4,6 +4,7 @@ use std::collections::HashMap;
 /// Represents a devcontainer.json configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct DevcontainerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -35,6 +36,7 @@ pub struct DevcontainerConfig {
     pub container_env: Option<HashMap<String, String>>,
 }
 
+#[allow(dead_code)]
 impl DevcontainerConfig {
     pub fn parse(json_str: &str) -> Result<Self, String> {
         // Strip JSON comments (// and /* */) before parsing
@@ -104,6 +106,7 @@ impl DevcontainerConfig {
     }
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 fn strip_json_comments(input: &str) -> String {
     let mut result = String::with_capacity(input.len());
     let mut chars = input.chars().peekable();
@@ -146,11 +149,9 @@ fn strip_json_comments(input: &str) -> String {
                     chars.next(); // consume *
                     loop {
                         match chars.next() {
-                            Some('*') => {
-                                if chars.peek() == Some(&'/') {
-                                    chars.next();
-                                    break;
-                                }
+                            Some('*') if chars.peek() == Some(&'/') => {
+                                chars.next();
+                                break;
                             }
                             Some('\n') => result.push('\n'),
                             None => break,

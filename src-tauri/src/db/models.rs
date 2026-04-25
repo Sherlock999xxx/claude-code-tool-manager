@@ -605,6 +605,7 @@ pub struct CreateProfileRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct ProfileItem {
     pub id: i64,
     pub profile_id: i64,
@@ -713,10 +714,12 @@ impl SegmentsPayload {
         }
     }
 
+    #[cfg_attr(not(test), allow(dead_code))]
     pub fn is_powerline(&self) -> bool {
         self.theme == "powerline" || self.theme == "powerline_round"
     }
 
+    #[cfg_attr(not(test), allow(dead_code))]
     pub fn is_powerline_round(&self) -> bool {
         self.theme == "powerline_round"
     }
@@ -767,6 +770,7 @@ pub struct SpinnerVerb {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct SpinnerVerbConfig {
     pub mode: String, // "append" or "replace"
     pub verbs: Vec<SpinnerVerb>,

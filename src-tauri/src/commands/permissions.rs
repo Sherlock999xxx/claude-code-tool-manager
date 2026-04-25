@@ -227,6 +227,7 @@ pub fn get_permission_templates(
 }
 
 /// Seed default permission templates (no Tauri State dependency)
+#[allow(clippy::type_complexity)]
 pub(crate) fn seed_permission_templates_impl(db: &Database) -> Result<(), String> {
     // Check if templates already exist
     let count: i64 = db
@@ -366,7 +367,7 @@ pub(crate) fn seed_permission_templates_impl(db: &Database) -> Result<(), String
         ),
     ];
 
-    let count = templates.len();
+    let _count = templates.len();
     for (name, desc, category, rule, tool_name, tag) in templates {
         let tags_json = serde_json::to_string(&vec![tag]).unwrap();
         db.conn()

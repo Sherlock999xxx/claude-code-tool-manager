@@ -2,7 +2,7 @@ use anyhow::Result;
 use chrono::Local;
 use std::fs::{self, File, OpenOptions};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
@@ -22,7 +22,7 @@ pub fn get_log_file_path() -> Option<PathBuf> {
 }
 
 /// Enable debug logging, creating a new log file
-pub fn enable_debug_logging(app_data_dir: &PathBuf) -> Result<PathBuf> {
+pub fn enable_debug_logging(app_data_dir: &Path) -> Result<PathBuf> {
     // Create logs directory
     let logs_dir = app_data_dir.join("logs");
     fs::create_dir_all(&logs_dir)?;
@@ -168,17 +168,17 @@ pub fn write_log_with_context(
 }
 
 /// Get the logs directory path
-pub fn get_logs_dir(app_data_dir: &PathBuf) -> PathBuf {
+pub fn get_logs_dir(app_data_dir: &Path) -> PathBuf {
     app_data_dir.join("logs")
 }
 
 /// Get the path to the debug persistence flag file
-fn get_debug_flag_path(app_data_dir: &PathBuf) -> PathBuf {
+fn get_debug_flag_path(app_data_dir: &Path) -> PathBuf {
     app_data_dir.join("debug_enabled")
 }
 
 /// Persist debug mode setting to disk
-pub fn persist_debug_enabled(app_data_dir: &PathBuf, enabled: bool) -> Result<()> {
+pub fn persist_debug_enabled(app_data_dir: &Path, enabled: bool) -> Result<()> {
     let flag_path = get_debug_flag_path(app_data_dir);
     if enabled {
         // Create the flag file
@@ -193,12 +193,12 @@ pub fn persist_debug_enabled(app_data_dir: &PathBuf, enabled: bool) -> Result<()
 }
 
 /// Check if debug mode was persisted (for startup)
-pub fn is_debug_persisted(app_data_dir: &PathBuf) -> bool {
+pub fn is_debug_persisted(app_data_dir: &Path) -> bool {
     get_debug_flag_path(app_data_dir).exists()
 }
 
 /// Initialize debug mode from persisted state (call early in startup)
-pub fn init_from_persisted(app_data_dir: &PathBuf) -> Result<Option<PathBuf>> {
+pub fn init_from_persisted(app_data_dir: &Path) -> Result<Option<PathBuf>> {
     if is_debug_persisted(app_data_dir) {
         let log_path = enable_debug_logging(app_data_dir)?;
         write_log("INFO", "debug", "Debug mode restored from persisted state")?;
@@ -261,9 +261,8 @@ mod tests {
     fn test_is_debug_enabled_initially_false() {
         // Note: This may fail if another test enabled debug mode
         // The global state makes this tricky
-        let enabled = is_debug_enabled();
-        // Just verify it returns a bool - the actual value depends on test order
-        assert!(enabled == true || enabled == false);
+        // Value depends on test order; just verify the function doesn't panic.
+        let _ = is_debug_enabled();
     }
 
     #[test]

@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::services::mcp_registry::{EnvPlaceholder, RegistryClient, RegistryMcpEntry};
+use crate::services::mcp_registry::{RegistryClient, RegistryMcpEntry};
 use rusqlite::params;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
@@ -94,18 +94,15 @@ pub fn import_mcp_from_registry_in_db(
     let args_json = entry
         .args
         .as_ref()
-        .map(|a| serde_json::to_string(a).ok())
-        .flatten();
+        .and_then(|a| serde_json::to_string(a).ok());
     let headers_json = entry
         .headers
         .as_ref()
-        .map(|h| serde_json::to_string(h).ok())
-        .flatten();
+        .and_then(|h| serde_json::to_string(h).ok());
     let env_json = entry
         .env
         .as_ref()
-        .map(|e| serde_json::to_string(e).ok())
-        .flatten();
+        .and_then(|e| serde_json::to_string(e).ok());
 
     db.conn()
         .execute(
@@ -166,6 +163,7 @@ pub fn get_registry_mcp_by_id(db: &Database, id: i64) -> Result<RegistryMcpEntry
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::services::mcp_registry::EnvPlaceholder;
     use std::collections::HashMap;
 
     // =========================================================================

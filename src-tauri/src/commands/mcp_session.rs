@@ -25,6 +25,7 @@ pub struct McpSessionData {
 }
 
 /// Extract MCP session data from the database (no Tauri State dependency)
+#[allow(clippy::type_complexity)]
 pub(crate) fn get_mcp_session_data_from_db(
     db: &Database,
     mcp_id: i64,
@@ -84,6 +85,7 @@ pub(crate) fn get_mcp_session_data_from_db(
 }
 
 /// Validate MCP session data before starting a session
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn validate_mcp_session_data(data: &McpSessionData) -> Result<(), String> {
     if data.source == "system" {
         if data.url.is_none() {

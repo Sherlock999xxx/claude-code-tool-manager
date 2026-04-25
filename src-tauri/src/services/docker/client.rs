@@ -50,6 +50,7 @@ impl DockerClientManager {
     }
 
     /// Connect to Docker based on host parameters (for testing connections)
+    #[allow(dead_code)]
     fn connect_with_params(
         host_type: &str,
         connection_uri: Option<&str>,
@@ -76,6 +77,7 @@ impl DockerClientManager {
     }
 
     /// Ping a Docker host by connection parameters
+    #[allow(dead_code)]
     pub async fn ping_host(
         &self,
         host_type: &str,
@@ -707,7 +709,7 @@ impl DockerClientManager {
             });
 
             // Spawn task to listen for input events
-            let app_clone2 = app_handle.clone();
+            let _app_clone2 = app_handle.clone();
             let session_id_clone2 = session_id.clone();
             tokio::spawn(async move {
                 let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(256);

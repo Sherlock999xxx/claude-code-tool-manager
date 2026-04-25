@@ -406,7 +406,11 @@ impl RegistryServer {
 
 fn extract_short_name(full_name: &str) -> String {
     // "io.github.user/my-mcp-server" -> "my-mcp-server"
-    full_name.split('/').last().unwrap_or(full_name).to_string()
+    full_name
+        .split('/')
+        .next_back()
+        .unwrap_or(full_name)
+        .to_string()
 }
 
 fn package_to_mcp_entry(server: &RegistryServer, package: &Package) -> Result<RegistryMcpEntry> {
@@ -536,13 +540,13 @@ fn remote_to_mcp_entry(server: &RegistryServer, remote: &Remote) -> RegistryMcpE
     // Convert Vec<RemoteHeader> to HashMap<String, String>
     let headers = remote.headers.as_ref().map(|hdrs| {
         hdrs.iter()
-            .filter_map(|h| {
+            .map(|h| {
                 // Use the value if present, otherwise use a placeholder
                 let value = h
                     .value
                     .clone()
                     .unwrap_or_else(|| format!("${{{}}}", h.name));
-                Some((h.name.clone(), value))
+                (h.name.clone(), value)
             })
             .collect::<HashMap<String, String>>()
     });

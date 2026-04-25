@@ -3,9 +3,7 @@
 //! These commands allow the frontend to start/stop and configure the MCP server.
 
 use crate::db::Database;
-use crate::mcp_server::server::{
-    generate_self_mcp_entry, McpServerConfig, McpServerStatus, DEFAULT_MCP_SERVER_PORT,
-};
+use crate::mcp_server::server::{generate_self_mcp_entry, McpServerConfig, McpServerStatus};
 use crate::mcp_server::McpServerState;
 use log::info;
 use serde_json::Value;
@@ -148,6 +146,7 @@ pub fn is_self_mcp_in_library(db: State<'_, Arc<Mutex<Database>>>) -> Result<boo
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mcp_server::server::DEFAULT_MCP_SERVER_PORT;
 
     #[test]
     fn test_mcp_server_config_serde() {
