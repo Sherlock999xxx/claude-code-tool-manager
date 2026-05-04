@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-05-04
+
+### Added
+- **Model Aliases & 1M Context Toggle**: Default Model dropdown now uses Claude Code aliases (`opus`, `sonnet`, `haiku`, `opusplan`, `best`) so the picker no longer goes stale every time Anthropic ships a new version. New "Use 1M token context window" checkbox appends the documented `[1m]` suffix and auto-disables for Haiku. New "Other (custom model ID)…" option accepts any provider-specific identifier — full model name, Bedrock ARN, Vertex/Foundry deployment names. Round-trips correctly through `settings.model`. (#213)
+- **Rules Disk Scanning**: Rules in `~/.claude/rules/` and `{project}/.claude/rules/` now appear in the UI — previously the `rules` table was only ever written by in-UI `create_rule`, so on-disk rules were invisible. Adds `scan_global_rules` and `scan_project_rules` to startup scan, factors a shared `walk_md_dir` helper across the four pre-existing flat-`.md` scanners (commands, agents), and accepts both JSON-array and legacy comma-separated `paths`/`tags`. Deleting a rule now also removes the backing `.md` file so the scanner doesn't resurrect it as auto-detected. (#200)
+
+### Fixed
+- **Sync Config Externally-Managed Configs**: Extended the #191 (3.8.1) guard from 2 writers to all 7 — `.mcp.json`, `claude.json`, OpenCode, Copilot, Cursor, Gemini, and Codex configs are no longer overwritten with empty MCP data when the app's database has none. Adding a project now also imports MCPs from `.mcp.json` so externally-configured servers show up in the UI instead of looking empty. Corrects `has_mcp_file` to read project-root `.mcp.json` per the spec. (#204)
+- **Tag Round-Trip in Writers**: Skill, command, and sub-agent writers now emit `tags` as JSON-array frontmatter so they round-trip through the DB reader's `serde_json::from_str`. Mirrors the rule_writer fix from #200 — pre-emptive, because once scanners re-ingest these primitives the asymmetry would silently lose or corrupt tags. (#202)
+- **Updater Signing on PR Builds**: Build workflow no longer fails on PRs from forks or Dependabot. PR builds now override `bundle.createUpdaterArtifacts=false` so the signing-key check is skipped; release builds (tag push) keep the existing signed-artifact path with the macOS x86_64 quirk intact. (#203)
+- **Real DB Errors in `delete_rule`**: `delete_rule_inner` no longer silently swallows lock contention / corruption / IO errors as "row absent" — only `QueryReturnedNoRows` maps to `None`, every other rusqlite error is returned before the DELETE runs. Same treatment for `rule_writer::delete_rule_file`. Follow-up to #200.
+
+### Changed
+- **Clippy Zero Warnings**: Brought `cargo clippy --lib --tests` from 134 warnings to 0 across nine commits — `cfg(test)`-gated import relocations, `_var` prefix on unused bindings, `vec!`→array in test code, `&Path` over `&PathBuf` in helpers, dead-code annotations on test helpers and serde-deser false positives, mechanical autofixes (`Option::map`, `assert!`, `next_back`). CI now enforces `-D warnings` on `--lib --tests` so lint debt cannot accumulate invisibly. (#205)
+
 ## [3.8.5] - 2026-04-19
 
 ### Changed
